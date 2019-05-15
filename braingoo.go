@@ -75,27 +75,20 @@ func (ip *Interpreter) parse() {
 		switch ip.source[ip.i] {
 		case 43:
 			ip.increment()
-			break
 		case 44:
 			ip.nextInput()
 		case 45:
 			ip.decrement()
-			break
 		case 46:
 			ip.output += string(ip.tape[ip.pointer])
-			break
 		case 60:
 			ip.shiftLeft()
-			break
 		case 62:
 			ip.shiftRight()
-			break
 		case 91:
 			ip.startLoop()
-			break
 		case 93:
 			ip.endLoop()
-			break
 		}
 	}
 }
