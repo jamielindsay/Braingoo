@@ -1,20 +1,25 @@
 package braingoo
 
 type Interpreter struct {
-	input     string
-	i         int // Current index of input
+	source    string
+	i         int // Current index of source
 	tape      [30000]int8
 	pointer   int
-	loopStack []int // Holds indices of loop brackets from input
+	loopStack []int  // Indices of loop brackets from source
+	input     []int8 // Input values FIFO
 	output    string
 }
 
-func NewInterpreter(input string) Interpreter {
-	return Interpreter{input, 0, [30000]int8{}, 0, make([]int, 0), ""}
+func NewInterpreter(source string, input []int8) Interpreter {
+	return Interpreter{source, 0, [30000]int8{}, 0, make([]int, 0), input, ""}
 }
 
 func (ip *Interpreter) increment() {
 	ip.tape[ip.pointer]++
+}
+
+func (ip *Interpreter) nextInput() {
+	ip.tape[ip.pointer], ip.input = ip.input[0], ip.input[1:]
 }
 
 func (ip *Interpreter) decrement() {
@@ -47,10 +52,10 @@ func (ip *Interpreter) startLoop() {
 
 func (ip *Interpreter) jump() {
 	level := -1
-	for ip.input[ip.i] != 93 || level != 0 {
-		if ip.input[ip.i] == 91 {
+	for ip.source[ip.i] != 93 || level != 0 {
+		if ip.source[ip.i] == 91 {
 			level++
-		} else if ip.input[ip.i] == 93 {
+		} else if ip.source[ip.i] == 93 {
 			level--
 		}
 		ip.i++
@@ -66,11 +71,13 @@ func (ip *Interpreter) endLoop() {
 }
 
 func (ip *Interpreter) parse() {
-	for ip.i = 0; ip.i < len(ip.input); ip.i++ {
-		switch ip.input[ip.i] {
+	for ip.i = 0; ip.i < len(ip.source); ip.i++ {
+		switch ip.source[ip.i] {
 		case 43:
 			ip.increment()
 			break
+		case 44:
+			ip.nextInput()
 		case 45:
 			ip.decrement()
 			break
